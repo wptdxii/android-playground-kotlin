@@ -1,0 +1,62 @@
+import static org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS
+import static org.apache.tools.ant.taskdefs.condition.Os.isFamily
+
+def keyStorePath
+def keyStoreFile
+def keyStoreProperties
+def channelFile
+if (isFamily(FAMILY_WINDOWS)) {
+    keyStorePath = System.getenv('USERPROFILE') + File.separator + '.ssh' + File.separator
+} else {
+    keyStorePath = System.getenv('HOME') + File.separator + '.ssh' + File.separator
+}
+keyStoreFile = keyStorePath + 'playground.jks'
+keyStoreProperties = keyStorePath + 'playground.properties'
+Properties props = new Properties()
+if (new File(keyStoreProperties).exists()) {
+    props.load(new FileInputStream(file(keyStoreProperties)))
+}
+channelFile = keyStorePath + 'channel.txt'
+
+ext {
+
+    signings = [
+            storeFile    : keyStoreFile,
+            storePassword: props.getProperty('KEYSTORE_PWD'),
+            keyAlias     : props.getProperty('KEY_ALIAS'),
+            keyPassword  : props.getProperty('KEY_PWD'),
+    ]
+
+    testings = [
+            junit   : "junit:junit:4.12",
+            runner  : "com.android.support.test:runner:1.0.1",
+            espresso: "com.android.support.test.espresso:espresso-core:3.0.1",
+    ]
+
+    supports = [
+            v7          : "com.android.support:appcompat-v7:$versions.support",
+            design      : "com.android.support:design:$versions.support",
+            annotations : "com.android.support:support-annotations:$versions.support",
+            constraint  : "com.android.support.constraint:constraint-layout:1.1.0-beta5",
+            cardView    : "com.android.support:cardview-v7:$versions.support",
+            recyclerView: "com.android.support:recyclerview-v7:$versions.support",
+            kotlin      : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$versions.kotlin",
+    ]
+
+    di = [
+            butterknife        : "com.jakewharton:butterknife:$versions.butterknife",
+            butterknifeCompiler: "com.jakewharton:butterknife-compiler:$versions.butterknife",
+    ]
+
+    databases = [
+            runtime : "android.arch.persistence.room:runtime:$versions.room",
+            compiler: "android.arch.persistence.room:compiler:$versions.room",
+            rxjava  : "android.arch.persistence.room:rxjava2:$versions.room",
+            test    : "android.arch.persistence.room:testing:$versions.room",
+    ]
+
+    channels = [
+            vasdolly: "com.leon.channel:helper:1.1.7",
+            file    : channelFile,
+    ]
+}

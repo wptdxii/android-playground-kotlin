@@ -1,0 +1,83 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion versions.compileSdk
+
+
+    defaultConfig {
+        applicationId "com.wptdxii.kotlin.playground"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode versions.code
+        versionName versions.name
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        config {
+            storeFile file(signings.storeFile)
+            storePassword signings.storePassword
+            keyAlias signings.keyAlias
+            keyPassword signings.keyPassword
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            signingConfig signingConfigs.config
+        }
+
+        release {
+            signingConfig signingConfigs.config
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        flavorDimensions "default"
+
+        mock {
+            dimension "default"
+        }
+
+        prod {
+            dimension "default"
+        }
+
+    }
+
+    variantFilter { variant ->
+        if ('release' == variant.buildType.name
+                && 'mock' == variant.getFlavors().get(0).name) {
+            variant.setIgnore(true)
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "Playground-v${variant.versionName}.apk"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':sdk:framekit')
+    implementation project(':sdk:uikit')
+
+    implementation supports.kotlin
+    implementation supports.v7
+    implementation supports.constraint
+
+    testImplementation testings.junit
+    androidTestImplementation testings.runner
+    androidTestImplementation testings.espresso
+}
